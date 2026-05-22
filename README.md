@@ -1,6 +1,6 @@
-# Proofstrike
+# Dragonbreath
 
-Proofstrike is a staged, proof-backed white-box security review platform for CI/CD.
+Dragonbreath is a staged, proof-backed white-box security review platform for CI/CD.
 
 It starts with the practical path:
 
@@ -17,12 +17,12 @@ The implementation is TypeScript-first and dependency-light. It is source-only i
 
 ## Five-Minute Setup
 
-The easiest production setup is to run Proofstrike from npm with `npx` in GitHub Actions. You do not need to add it as a dependency to the protected repository unless you want to pin and vendor the exact CLI version in `package.json`.
+The easiest production setup is to run Dragonbreath from npm with `npx` in GitHub Actions. You do not need to add it as a dependency to the protected repository unless you want to pin and vendor the exact CLI version in `package.json`.
 
-1. Initialize Proofstrike in the repository you want to protect:
+1. Initialize Dragonbreath in the repository you want to protect:
 
 ```bash
-npx -y proofstrike@latest init
+npx -y dragonbreath@latest init
 ```
 
 2. If you want model-backed repository exploration, edit `proofstrike.config.json` and add an OpenAI-compatible provider. Omit this block for deterministic local-only review.
@@ -46,12 +46,12 @@ npx -y proofstrike@latest init
 OPENAI_API_KEY=<your model provider key>
 ```
 
-If you omit `providers.default`, no LLM secret is required and Proofstrike uses its deterministic investigator/validator.
+If you omit `providers.default`, no LLM secret is required and Dragonbreath uses its deterministic investigator/validator.
 
 4. Commit this workflow as `.github/workflows/proofstrike.yml`:
 
 ```yaml
-name: Proofstrike
+name: Dragonbreath
 
 on:
   pull_request:
@@ -76,17 +76,17 @@ jobs:
       - name: Preflight
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: npx -y proofstrike@latest preflight --stage preprod
+        run: npx -y dragonbreath@latest preflight --stage preprod
       - name: Pull request gate
         if: github.event_name == 'pull_request'
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: npx -y proofstrike@latest ci --stage pull_request --diff origin/${{ github.base_ref }} --format markdown,json,sarif,pr-comment
+        run: npx -y dragonbreath@latest ci --stage pull_request --diff origin/${{ github.base_ref }} --format markdown,json,sarif,pr-comment
       - name: Main branch deploy gate
         if: github.event_name == 'push' && github.ref_name == 'main'
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: npx -y proofstrike@latest ci --stage preprod --diff HEAD~1 --revalidate-open --format markdown,json,sarif
+        run: npx -y dragonbreath@latest ci --stage preprod --diff HEAD~1 --revalidate-open --format markdown,json,sarif
       - name: Upload SARIF
         if: always()
         uses: github/codeql-action/upload-sarif@v3
@@ -98,7 +98,7 @@ jobs:
 
 ```bash
 git add proofstrike.config.json .proofstrike .github/workflows/proofstrike.yml
-git commit -m "chore: add Proofstrike security gate"
+git commit -m "chore: add Dragonbreath security gate"
 ```
 
 The pipeline prints findings in the job log, writes Markdown/JSON/SARIF reports under `.proofstrike/reports`, uploads SARIF to GitHub code scanning, and exits nonzero when configured policy produces a blocking decision or when a CI-critical run error occurs.
@@ -109,18 +109,18 @@ The pipeline prints findings in the job log, writes Markdown/JSON/SARIF reports 
 
 Use one of these patterns:
 
-- `npx -y proofstrike@latest ...` for the smallest setup and automatic latest CLI.
-- `npm install --save-dev proofstrike` and `npx proofstrike ...` when you want lockfile pinning.
-- Clone this repository and run `pnpm build && node ./dist/bin/proofstrike.js ...` for local development on Proofstrike itself.
+- `npx -y dragonbreath@latest ...` for the smallest setup and automatic latest CLI.
+- `npm install --save-dev dragonbreath` and `npx dragonbreath ...` when you want lockfile pinning.
+- Clone this repository and run `pnpm build && node ./dist/bin/proofstrike.js ...` for local development on Dragonbreath itself.
 
-Proofstrike requires Node.js 22 or newer.
+Dragonbreath requires Node.js 22 or newer.
 
 ### Initialize Project State
 
 Run:
 
 ```bash
-npx -y proofstrike@latest init
+npx -y dragonbreath@latest init
 ```
 
 This creates:
@@ -135,7 +135,7 @@ Commit those files. They are the project security context used by CI.
 
 ### Configure The Model Provider
 
-Model-backed mode is optional. When configured, Proofstrike uses an OpenAI-compatible API and fails loudly if credentials are missing unless you explicitly set `runtime.modelFailureMode` to `static-fallback`.
+Model-backed mode is optional. When configured, Dragonbreath uses an OpenAI-compatible API and fails loudly if credentials are missing unless you explicitly set `runtime.modelFailureMode` to `static-fallback`.
 
 ```json
 {
@@ -174,9 +174,9 @@ Use these common stages:
 Typical CI commands:
 
 ```bash
-npx -y proofstrike@latest preflight --stage pull_request
-npx -y proofstrike@latest ci --stage pull_request --diff origin/main --format markdown,json,sarif,pr-comment
-npx -y proofstrike@latest ci --stage preprod --revalidate-open --format markdown,json,sarif
+npx -y dragonbreath@latest preflight --stage pull_request
+npx -y dragonbreath@latest ci --stage pull_request --diff origin/main --format markdown,json,sarif,pr-comment
+npx -y dragonbreath@latest ci --stage preprod --revalidate-open --format markdown,json,sarif
 ```
 
 ### Tune Policy
@@ -219,7 +219,7 @@ hotspots:
 
 ### Optional External Tools
 
-Set this when you want Semgrep, Trivy, and CodeQL signals folded into Proofstrike:
+Set this when you want Semgrep, Trivy, and CodeQL signals folded into Dragonbreath:
 
 ```yaml
 env:
@@ -231,18 +231,18 @@ The tools must be installed on the runner. Missing tools are reported by `prefli
 ### Local Commands
 
 ```bash
-npx -y proofstrike@latest preflight --stage pull_request
-npx -y proofstrike@latest scan --stage pull_request --files src/api/users.ts
-npx -y proofstrike@latest ci --stage pull_request --files src/api/users.ts --format markdown,json,sarif
-npx -y proofstrike@latest status
-npx -y proofstrike@latest report
-npx -y proofstrike@latest triage --min-severity medium
-npx -y proofstrike@latest revalidate
+npx -y dragonbreath@latest preflight --stage pull_request
+npx -y dragonbreath@latest scan --stage pull_request --files src/api/users.ts
+npx -y dragonbreath@latest ci --stage pull_request --files src/api/users.ts --format markdown,json,sarif
+npx -y dragonbreath@latest status
+npx -y dragonbreath@latest report
+npx -y dragonbreath@latest triage --min-severity medium
+npx -y dragonbreath@latest revalidate
 ```
 
 ### Publishing This Repository
 
-This repository is configured to publish the `proofstrike` npm CLI package from `main` using semantic-release and Conventional Commits.
+This repository is configured to publish the `dragonbreath` npm CLI package from `main` using semantic-release and Conventional Commits.
 
 Required GitHub repository secrets:
 
@@ -276,24 +276,24 @@ node ./dist/bin/proofstrike.js report --root fixtures/vulnerable-webapp
 
 ## Commands
 
-- `proofstrike init`
-- `proofstrike doctor`
-- `proofstrike catalog`
-- `proofstrike preflight`
-- `proofstrike scan`
-- `proofstrike review`
-- `proofstrike ci`
-- `proofstrike resume`
-- `proofstrike report`
-- `proofstrike revalidate`
-- `proofstrike status`
-- `proofstrike export`
-- `proofstrike metrics`
-- `proofstrike controls`
-- `proofstrike triage`
-- `proofstrike explain <finding-id>`
-- `proofstrike packs list`
-- `proofstrike packs install <ref>`
+- `dragonbreath init`
+- `dragonbreath doctor`
+- `dragonbreath catalog`
+- `dragonbreath preflight`
+- `dragonbreath scan`
+- `dragonbreath review`
+- `dragonbreath ci`
+- `dragonbreath resume`
+- `dragonbreath report`
+- `dragonbreath revalidate`
+- `dragonbreath status`
+- `dragonbreath export`
+- `dragonbreath metrics`
+- `dragonbreath controls`
+- `dragonbreath triage`
+- `dragonbreath explain <finding-id>`
+- `dragonbreath packs list`
+- `dragonbreath packs install <ref>`
 
 ## Repository Layout
 
@@ -333,7 +333,7 @@ The current source-review MVP includes:
 - Resumable run support for queued or errored work packets.
 - Run artifacts/checkpoints for snapshots, code indexes, signals, candidates, work packets, findings, validations, and policy decisions.
 - File-state tracking for repeat runs and `--since-last` incremental CI scopes.
-- Local JSON matcher packs so teams can add organization-specific rules without changing Proofstrike source.
+- Local JSON matcher packs so teams can add organization-specific rules without changing Dragonbreath source.
 - Typed extension registry for programmatic matcher, ownership, notifier, executor, and agent integrations.
 - CI preflight checks for writable state, matcher-pack validity, model credentials, and optional external scanner availability.
 - Enrichment evidence for technology profile, manifests/deployment files, ownership rules, and sensitive path surfaces.
@@ -352,3 +352,4 @@ The current source-review MVP includes:
 - [Security Engine Hardening](docs/security-engine-hardening.md)
 - [Roadmap](docs/roadmap.md)
 - [Go-To-Market](docs/go-to-market.md)
+

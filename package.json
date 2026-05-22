@@ -1,5 +1,5 @@
 {
-  "name": "proofstrike",
+  "name": "dragonbreath",
   "version": "0.1.0",
   "private": false,
   "type": "module",
@@ -14,6 +14,7 @@
   },
   "homepage": "https://github.com/LukasNiessen/dragonfire#readme",
   "bin": {
+    "dragonbreath": "./dist/bin/proofstrike.js",
     "proofstrike": "./dist/bin/proofstrike.js"
   },
   "scripts": {
@@ -39,7 +40,8 @@
     "appsec"
   ],
   "files": [
-    "dist",
+    "dist/bin",
+    "dist/packages",
     "docs",
     "examples",
     "README.md",
