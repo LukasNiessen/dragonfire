@@ -1,0 +1,8 @@
+{
+  "name": "@proofstrike/standards",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "../../dist/packages/standards/src/index.js",
+  "types": "../../dist/packages/standards/src/index.d.ts"
+}

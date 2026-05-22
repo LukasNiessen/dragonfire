@@ -1,0 +1,64 @@
+{
+  "name": "proofstrike",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "packageManager": "pnpm@10.33.2",
+  "description": "Staged, proof-backed white-box security review for CI/CD.",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/LukasNiessen/dragonfire.git"
+  },
+  "bugs": {
+    "url": "https://github.com/LukasNiessen/dragonfire/issues"
+  },
+  "homepage": "https://github.com/LukasNiessen/dragonfire#readme",
+  "bin": {
+    "proofstrike": "./dist/bin/proofstrike.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "proofstrike": "pnpm build && node ./dist/bin/proofstrike.js",
+    "test": "pnpm build && node dist/tests/run-tests.js",
+    "check": "pnpm build && node ./dist/bin/proofstrike.js doctor",
+    "review:fixture": "pnpm build && node ./dist/bin/proofstrike.js review --root fixtures/vulnerable-webapp --stage pull_request --files src/api/users.ts,src/api/admin.ts --format markdown,json,sarif"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "security",
+    "sast",
+    "red-team",
+    "ci",
+    "llm",
+    "appsec"
+  ],
+  "files": [
+    "dist",
+    "docs",
+    "examples",
+    "README.md",
+    "SECURITY.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/node": "^25.9.0",
+    "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "commander": "^14.0.3",
+    "fast-glob": "^3.3.3",
+    "picomatch": "^4.0.4",
+    "yaml": "^2.9.0",
+    "zod": "^4.4.3"
+  }
+}

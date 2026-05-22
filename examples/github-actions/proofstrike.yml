@@ -1,0 +1,53 @@
+name: Proofstrike
+
+on:
+  pull_request:
+  push:
+    branches:
+      - dev
+      - stage
+      - main
+
+jobs:
+  source-security-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Enable pnpm
+        run: corepack enable
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Build Proofstrike
+        run: pnpm build
+      - name: Preflight
+        run: node ./dist/bin/proofstrike.js preflight --stage pull_request
+      - name: Pull request review
+        if: github.event_name == 'pull_request'
+        run: node ./dist/bin/proofstrike.js ci --stage pull_request --diff origin/${{ github.base_ref }} --format markdown,json,sarif,pr-comment
+      - name: Dev branch review
+        if: github.event_name == 'push' && github.ref_name == 'dev'
+        run: node ./dist/bin/proofstrike.js ci --stage dev --diff HEAD~1 --format markdown,json,sarif
+      - name: Stage branch review with external tools
+        if: github.event_name == 'push' && github.ref_name == 'stage'
+        env:
+          PROOFSTRIKE_ENABLE_EXTERNAL_TOOLS: "1"
+        run: node ./dist/bin/proofstrike.js ci --stage stage --format markdown,json,sarif
+      - name: Pre-production gate
+        if: github.event_name == 'push' && github.ref_name == 'main'
+        env:
+          PROOFSTRIKE_ENABLE_EXTERNAL_TOOLS: "1"
+        run: node ./dist/bin/proofstrike.js ci --stage preprod --revalidate-open --format markdown,json,sarif
+      - name: Upload SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: .proofstrike/reports

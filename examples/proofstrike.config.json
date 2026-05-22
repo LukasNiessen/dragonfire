@@ -1,0 +1,59 @@
+{
+  "projectId": "example-service",
+  "defaultStage": "pull_request",
+  "outputDir": ".proofstrike/reports",
+  "dataPath": ".proofstrike/proofstrike-data.json",
+  "instructions": [
+    ".proofstrike/instructions.md"
+  ],
+  "hotspots": [
+    ".proofstrike/hotspots.yml"
+  ],
+  "packs": [
+    "proofstrike.builtins"
+  ],
+  "runtime": {
+    "agentMode": "repository-explorer",
+    "modelFailureMode": "fail",
+    "maxConcurrency": 2,
+    "retries": 1,
+    "explorationTurns": 4,
+    "validationRuns": 1,
+    "requestTimeoutMs": 120000,
+    "directDiffOnly": false
+  },
+  "stages": {
+    "pull_request": {
+      "maxCostUsd": 2,
+      "graphRadius": 1
+    },
+    "stage": {
+      "maxCostUsd": 25,
+      "graphRadius": 2
+    },
+    "preprod": {
+      "maxCostUsd": 100,
+      "graphRadius": 2
+    }
+  },
+  "failOn": [
+    {
+      "severity": "critical",
+      "validation": "real",
+      "reason": "Validated critical findings block release."
+    },
+    {
+      "category": "secrets",
+      "confidence": "high",
+      "reason": "Live-looking credentials are never allowed in source."
+    }
+  ],
+  "manualReviewOn": [
+    {
+      "category": "auth",
+      "severity": "high",
+      "reason": "High-risk authorization findings need human owner review."
+    }
+  ],
+  "suppressions": []
+}

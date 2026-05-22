@@ -1,0 +1,32 @@
+hotspots:
+  - id: auth-boundary
+    paths:
+      - src/auth/**
+      - src/middleware/**
+      - app/**/route.ts
+      - app/**/actions.ts
+    reason: Authentication, authorization, session, and server-action boundaries.
+    alwaysInclude: true
+    expandRadius: 2
+    knowledgePacks:
+      - auth-review
+  - id: data-boundary
+    paths:
+      - src/db/**
+      - prisma/**
+      - src/repositories/**
+    reason: Query construction, tenant scoping, and persistence layer.
+    slugs:
+      - sql-injection
+      - prisma-query-raw-unsafe
+      - tenant-id-from-request
+  - id: ai-boundary
+    paths:
+      - src/agents/**
+      - src/tools/**
+      - src/mcp/**
+    reason: Tool permissions, prompt boundaries, model-output execution, and memory safety.
+    slugs:
+      - ai-tool-shell-access
+      - function-calling-arguments-unvalidated
+      - agent-memory-stores-secrets

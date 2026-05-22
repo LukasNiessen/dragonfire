@@ -1,0 +1,18 @@
+{
+  "matchers": [
+    {
+      "slug": "company-tenant-id-from-request",
+      "name": "Tenant id trusted from request input",
+      "category": "auth",
+      "severity": "high",
+      "confidence": "high",
+      "noiseTier": "low",
+      "pattern": "tenantId[\\s\\S]{0,240}(?:req\\.|request\\.|params|query|body)",
+      "negativePattern": "requireTenant|assertTenant|tenantScope|currentTenant",
+      "message": "Tenant identity appears to come from request input without a local tenant-scope guard.",
+      "examples": [
+        "const tenant = await db.tenant.find(req.query.tenantId)"
+      ]
+    }
+  ]
+}
